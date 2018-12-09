@@ -2,6 +2,7 @@ package com.example.charles.runescapeappp2;
 
 
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -76,7 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void openDataBase() throws SQLException {
         String myPath = DB_PATH + DB_NAME;
-        myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+        myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
 
     }
 
@@ -108,12 +109,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void insertQueryItem(String itemName){
-        myDataBase.execSQL("insert into ITEM(item_name, item_min, item_max) values('"+ itemName + "', 0, 0" + ");");
+        ContentValues insert = new ContentValues(3);
+        insert.put(itemName,0);
+        insert.put("0",1);
+        insert.put("0",2);
+        Log.d("database entry item", "got to insert method");
+        myDataBase.beginTransaction();
+        myDataBase.insert("ITEM", "item_name, item_min, item_max", insert);
+        myDataBase.setTransactionSuccessful();
     }
 
     public void insertQueryBuy(String item,int buyAmount, int buyPrice) {
-       String selectQuery = "SELECT item_ID FROM ITEM WHERE item_name = " + item;
-        Cursor c = myDataBase.rawQuery(selectQuery, new String[] {DB_NAME});
-         myDataBase.execSQL("insert into ITEM_BUY(item_ID, buy_amount, buy_price) values("+ Integer.getInteger(c.toString()) + ", " + buyAmount + ", " + buyPrice + ");");
+       String selectQuery = "SELECT item_ID FROM ITEM WHERE item_name = " + "'" +item +"'";
+        Cursor c = myDataBase.rawQuery(selectQuery,null);
+        int test = c.getInt(c.getPosition());
+         myDataBase.execSQL("insert into ITEM_BUY(item_ID, buy_amount, buy_price) values( "
+                 + test
+                 + ", " + buyAmount +
+                 ", " + buyPrice + ")");
+         Log.d("database entry", "database insert");
     }
 }
