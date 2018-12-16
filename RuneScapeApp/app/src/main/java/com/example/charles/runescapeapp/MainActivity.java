@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         DatabaseHelper dbHelp = new DatabaseHelper(MainActivity.this);
-         spinner = (Spinner) findViewById(R.id.ItemSpinner);
+         spinner = findViewById(R.id.ItemSpinner);
          spinner = dbHelp.updateScrollPane(spinner,this);
 
        //Query portion easily changed for debugging purposes
@@ -37,36 +37,45 @@ public class MainActivity extends AppCompatActivity {
 
     public void buyOnClick(View v) {
         Item buyItem = new Item();
-        EditText newItems = (EditText) findViewById(R.id.newItem);
-        buyItem.setItemName(newItems.getText().toString());
-        EditText buyPrices = (EditText) findViewById(R.id.buyPrice);
-        buyItem.setBuyPrice(Integer.parseInt(buyPrices.getText().toString()));
-        EditText buyAmounts = (EditText) findViewById(R.id.buyAmount);
-        buyItem.setBuyAmount(Integer.parseInt(buyAmounts.getText().toString()));
+        boolean check = true;
+        EditText checkText = findViewById(R.id.isCorrect);
+        checkText.setVisibility(View.INVISIBLE);
+
+        EditText newItems = findViewById(R.id.newItem);
+        EditText buyPrices = findViewById(R.id.buyPrice);
+        EditText buyAmounts = findViewById(R.id.buyAmount);
 
 
 
-
-
-
-        if(buyItem.getItemName().equals("")|| buyItem.getItemName().equals(null)){
-            Cursor c = (Cursor) spinner.getItemAtPosition(spinner.getSelectedItemPosition());
-            buyItem.setItemName(c.getString(1));
-            DatabaseHelper myDbhelper = new DatabaseHelper(this);
-            myDbhelper.insertQueryBuy(buyItem.getItemName(),buyItem.getBuyAmount(),buyItem.getBuyPrice());
-            buyItem= myDbhelper.checkMinAndMax(buyItem);
-
-
-        }else{
-
-            Log.d("database entry", "database insert");
-            DatabaseHelper myDbHelper = new DatabaseHelper(MainActivity.this);
-             myDbHelper.insertQueryItem(buyItem);
-            myDbHelper.insertQueryBuy(buyItem.getItemName(),buyItem.getBuyAmount(),buyItem.getBuyPrice());
-            buyItem= myDbHelper.checkMinAndMax(buyItem);
-            spinner = myDbHelper.updateScrollPane(spinner,this);
+        if(!buyItem.checkSetItemName(newItems.getText().toString())
+                ||!buyItem.checkSetItemBuyAmount(buyAmounts.getText().toString())
+                ||!buyItem.checkSetItemBuyPrice(buyPrices.getText().toString())){
+            checkText.setVisibility(View.VISIBLE);
+            check = false;
         }
 
+
+
+
+        if(check) {
+
+            buyItem.setBuyPrice(Integer.parseInt(buyPrices.getText().toString()));
+            buyItem.setBuyAmount(Integer.parseInt(buyAmounts.getText().toString()));
+            if (buyItem.getItemName().equals("") || buyItem.getItemName().equals(null)) {
+                Cursor c = (Cursor) spinner.getItemAtPosition(spinner.getSelectedItemPosition());
+                buyItem.setItemName(c.getString(1));
+                DatabaseHelper myDbhelper = new DatabaseHelper(this);
+                myDbhelper.insertQueryBuy(buyItem.getItemName(), buyItem.getBuyAmount(), buyItem.getBuyPrice());
+                buyItem = myDbhelper.checkMinAndMax(buyItem);
+            } else {
+                Log.d("database entry", "database insert");
+                DatabaseHelper myDbHelper = new DatabaseHelper(MainActivity.this);
+                myDbHelper.insertQueryItem(buyItem);
+                myDbHelper.insertQueryBuy(buyItem.getItemName(), buyItem.getBuyAmount(), buyItem.getBuyPrice());
+                buyItem = myDbHelper.checkMinAndMax(buyItem);
+                spinner = myDbHelper.updateScrollPane(spinner, this);
+            }
+        }
     }
 
 

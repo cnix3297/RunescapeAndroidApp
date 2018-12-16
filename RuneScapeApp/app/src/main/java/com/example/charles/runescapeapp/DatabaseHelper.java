@@ -33,20 +33,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else
             DB_PATH = "/data/data/" + context.getPackageName() + "/databases/";
         this.mContext = context;
-
         copyDataBase();
-
         this.getReadableDatabase();
     }
 
-    public void updateDataBase() throws IOException {
+    public void updateDataBase() {
         if (mNeedUpdate) {
             File dbFile = new File(DB_PATH + DB_NAME);
             if (dbFile.exists())
                 dbFile.delete();
-
             copyDataBase();
-
             mNeedUpdate = false;
         }
     }
@@ -106,15 +102,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             myDataBase.beginTransaction();
             myDataBase.insertOrThrow("ITEM", null, test);
-
-
         } finally {
             myDataBase.setTransactionSuccessful();
             myDataBase.endTransaction();
         }
-
         myDataBase.close();
-        }
+    }
 
     public void insertQueryBuy(String item,int buyAmount, int buyPrice) {
         SQLiteDatabase myDataBase = this.getWritableDatabase();
@@ -134,19 +127,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
     public Spinner updateScrollPane(Spinner spinner, Context main){
-
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "select  _id, item_name from ITEM Order by item_name ASC;";
         Cursor cursor = db.rawQuery(query, null);
-
-
-
         String[] item = {"item_name"};
         int[] toView = {android.R.id.text1};
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(main,R.layout.support_simple_spinner_dropdown_item, cursor, item, toView,0);
         spinner.setAdapter(adapter);
-
-
         db.close();
         return spinner;
     }
@@ -154,7 +141,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Item checkMinAndMax(Item item){
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT _id, item_min, item_max, item_name FROM ITEM WHERE item_name = '" + item.getItemName() + "';";
-
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         item.setMin(cursor.getInt(cursor.getColumnIndex("item_min")));
@@ -163,7 +149,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         db = this.getWritableDatabase();
         if (item.getMin() <=item.getBuyPrice()  && item.getBuyPrice() <= item.getMax()){
-
         }else if (item.getMin() > item.getBuyPrice()){
             //update query to new min price
 
@@ -176,7 +161,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.setTransactionSuccessful();
                 db.endTransaction();
             }
-
         }else{
             //update quer to new max price
             item.setMax(item.getBuyPrice());
@@ -189,7 +173,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.endTransaction();
             }
         }
-
         return item;
     }
 
